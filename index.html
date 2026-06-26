@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İsmail Çalmaz Otomotiv</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#1b1c1d; --muted:#6a737b;
+    --line:#e6e8ec; --brand:#d10429; --brand-dark:#a4011f; --ok:#178546;
+    --radius:14px; --shadow:0 2px 14px rgba(20,28,40,.08);
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 16px}
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:10px;flex-wrap:wrap}
+  .logo{font-weight:800;font-size:20px;letter-spacing:.5px;cursor:pointer}
+  .logo span{color:var(--brand)}
+  .top-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
+       padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;font-family:inherit}
+  .btn-brand{background:var(--brand);color:#fff}.btn-brand:hover{background:var(--brand-dark)}
+  .btn-ghost{background:#eef0f3;color:var(--ink)}
+  .btn-wide{width:100%;justify-content:center;padding:14px}
+
+  /* durum mesajları */
+  .state{text-align:center;padding:60px 20px;color:var(--muted)}
+  .spinner{width:34px;height:34px;border:4px solid var(--line);border-top-color:var(--brand);
+           border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* === LİSTE === */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;padding:18px 0}
+  .filters input,.filters select{padding:11px 14px;border:1px solid var(--line);border-radius:10px;
+       font-family:inherit;font-size:14px;background:#fff;min-width:150px}
+  .filters input{flex:1;min-width:200px}
+  .count{padding:0 0 12px;color:var(--muted);font-size:14px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:30px}
+  @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+        cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,28,40,.14)}
+  .card-img{aspect-ratio:4/3;background:#dfe3e8 center/cover no-repeat;display:flex;
+            align-items:center;justify-content:center;color:#9aa4af;font-size:13px;position:relative}
+  .card-img img{width:100%;height:100%;object-fit:cover}
+  .card-body{padding:14px;flex:1;display:flex;flex-direction:column}
+  .card-brand{font-size:12px;color:var(--brand);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .card-title{font-weight:700;font-size:15px;margin:2px 0}
+  .card-ver{font-size:12.5px;color:var(--muted);flex:1;margin-bottom:8px;
+            display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card-meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .card-price{font-weight:800;font-size:18px}
+
+  /* === TEK ARAÇ === */
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;padding:24px 0}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .gallery{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .main-img{aspect-ratio:4/3;background:#11141a;display:flex;align-items:center;justify-content:center;cursor:zoom-in;color:#7a828c}
+  .main-img img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumbs{display:flex;gap:8px;padding:10px;overflow-x:auto}
+  .thumb{flex:0 0 84px;height:62px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;background:#222}
+  .thumb.active{border-color:var(--brand)}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .summary{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:sticky;top:84px}
+  .crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
+  .crumb b{color:var(--brand)}
+  h1{font-size:22px;margin:0 0 4px}
+  .versiyon{color:var(--muted);font-size:15px;margin-bottom:14px}
+  .meta-line{font-size:14px;color:var(--muted);margin-bottom:4px}
+  .plate{display:inline-block;border:2px solid #1b3a8f;border-radius:6px;padding:2px 10px;
+         font-weight:700;letter-spacing:1px;font-size:14px;margin:8px 0}
+  .price{font-size:30px;font-weight:800;margin:14px 0 4px}.price small{font-size:18px}
+  .status{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:14px;background:#e7f6ee;color:var(--ok)}
+  .section{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
+  .section h2{font-size:16px;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid var(--brand);display:inline-block}
+  .specs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:700px){.specs{grid-template-columns:repeat(2,1fr)}}
+  .spec{background:#f7f8fa;border-radius:10px;padding:14px;text-align:center}
+  .spec .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .spec .val{font-size:16px;font-weight:700;margin-top:4px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;margin:18px 0 0;cursor:pointer}
+  .back-link:hover{color:var(--brand)}
+
+  footer{background:#fff;border-top:1px solid var(--line);padding:24px 0;text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
+
+  .lb{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:50}
+  .lb.open{display:flex}
+  .lb img{max-width:92vw;max-height:88vh;border-radius:8px}
+  .lb-close{position:absolute;top:18px;right:24px;color:#fff;font-size:34px;cursor:pointer}
+  .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:44px;cursor:pointer;padding:0 18px;user-select:none}
+  .lb-prev{left:0}.lb-next{right:0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap topbar">
+    <div class="logo" onclick="goHome()">İSMAİL ÇALMAZ <span>OTOMOTİV</span></div>
+    <div class="top-actions">
+      <a class="btn btn-ghost" onclick="goHome()">Tüm Araçlar</a>
+      <a class="btn btn-brand" href="tel:+902322537010">📞 0232 253 70 10</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap" id="app">
+  <div class="state"><div class="spinner"></div>Araçlar yükleniyor…</div>
+</div>
+
+<footer>© <span id="yil"></span> İsmail Çalmaz Otomotiv — Tüm hakları saklıdır.</footer>
+
+<div class="lb" id="lb">
+  <span class="lb-close" onclick="closeLB()">&times;</span>
+  <span class="lb-nav lb-prev" onclick="navLB(-1)">&#8249;</span>
+  <img id="lbImg" src="">
+  <span class="lb-nav lb-next" onclick="navLB(1)">&#8250;</span>
+</div>
+
+<script>
+/* ====== AYARLAR ====== */
+const SHEET_ID  = "1hI3yWikMTjFUjYUUAjPI3j_TlHG8CROzUV8qkyu7auc";
+const SHEET_GID = "547431105";   // WEB sayfası
+/* WEB sayfası kolon sırası:
+   id, marka, model, versiyon, yil, km, vites, yakit, kasa_tipi, renk, plaka, fiyat, foto */
+
+const $  = s => document.querySelector(s);
+const app = $('#app');
+let ARACLAR = [];
+
+const fmtTL = n => Number(String(n).replace(/[^\d]/g,'')||0).toLocaleString('tr-TR');
+
+/* ---- Sheets'ten veri çek (gviz JSON) ---- */
+async function loadData(){
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
+  const res = await fetch(url);
+  const txt = await res.text();
+  // gviz cevabı JSON değil, içine gömülü; ayıkla
+  const json = JSON.parse(txt.substring(txt.indexOf('{'), txt.lastIndexOf('}')+1));
+  const cols = json.table.cols.map(c => (c.label||'').trim().toLowerCase());
+  const rows = json.table.rows;
+
+  return rows.map(r => {
+    const o = {};
+    r.c.forEach((cell,i) => {
+      const key = cols[i] || ('c'+i);
+      o[key] = cell ? (cell.v ?? '') : '';
+    });
+    return o;
+  }).filter(o => o.id);   // boş satırları at
+}
+
+/* ---- foto linklerini diziye çevir ---- */
+function fotoListesi(a){
+  if(!a.foto) return [];
+  return String(a.foto).split(/[,\n;|]+/).map(s=>s.trim()).filter(Boolean);
+}
+
+/* ============ LİSTE GÖRÜNÜMÜ ============ */
+function renderList(){
+  const markalar = [...new Set(ARACLAR.map(a=>a.marka).filter(Boolean))].sort();
+  app.innerHTML = `
+    <div class="filters">
+      <input id="q" placeholder="Marka, model veya plaka ara…" oninput="filtrele()">
+      <select id="fMarka" onchange="filtrele()">
+        <option value="">Tüm Markalar</option>
+        ${markalar.map(m=>`<option value="${m}">${m}</option>`).join('')}
+      </select>
+      <select id="fSira" onchange="filtrele()">
+        <option value="">Sıralama</option>
+        <option value="fiyat-asc">Fiyat (artan)</option>
+        <option value="fiyat-desc">Fiyat (azalan)</option>
+        <option value="yil-desc">Yıl (yeni)</option>
+        <option value="km-asc">KM (az)</option>
+      </select>
+    </div>
+    <div class="count" id="count"></div>
+    <div class="cards" id="cards"></div>
+  `;
+  filtrele();
+}
+
+function filtrele(){
+  const q = ($('#q')?.value||'').toLowerCase().trim();
+  const m = $('#fMarka')?.value||'';
+  const s = $('#fSira')?.value||'';
+  let list = ARACLAR.filter(a=>{
+    if(m && a.marka!==m) return false;
+    if(q){
+      const hay = `${a.marka} ${a.model} ${a.versiyon} ${a.plaka}`.toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  const num = x => Number(String(x).replace(/[^\d]/g,'')||0);
+  if(s==='fiyat-asc') list.sort((a,b)=>num(a.fiyat)-num(b.fiyat));
+  if(s==='fiyat-desc')list.sort((a,b)=>num(b.fiyat)-num(a.fiyat));
+  if(s==='yil-desc')  list.sort((a,b)=>num(b.yil)-num(a.yil));
+  if(s==='km-asc')    list.sort((a,b)=>num(a.km)-num(b.km));
+
+  $('#count').textContent = `${list.length} araç bulundu`;
+  $('#cards').innerHTML = list.map(a=>{
+    const fotos = fotoListesi(a);
+    const img = fotos.length
+      ? `<img src="${fotos[0]}" loading="lazy" alt="">`
+      : 'Fotoğraf yakında';
+    const meta = [a.yil, a.km?fmtTL(a.km)+' km':'', a.yakit, a.vites].filter(Boolean).join(' • ');
+    return `<div class="card" onclick="openArac('${encodeURIComponent(a.id)}')">
+      <div class="card-img">${img}</div>
+      <div class="card-body">
+        <div class="card-brand">${a.marka||''}</div>
+        <div class="card-title">${a.model||''}</div>
+        <div class="card-ver">${a.versiyon||''}</div>
+        <div class="card-meta">${meta}</div>
+        <div class="card-price">${fmtTL(a.fiyat)} ₺</div>
+      </div>
+    </div>`;
+  }).join('') || `<div class="state">Aramanıza uygun araç bulunamadı.</div>`;
+}
+
+/* ============ TEK ARAÇ GÖRÜNÜMÜ ============ */
+let photos=[], currentIdx=0;
+
+function renderArac(a){
+  photos = fotoListesi(a);
+  const meta = [a.yil,a.kasa_tipi,a.vites,a.yakit,(a.km?fmtTL(a.km)+' km':'')].filter(Boolean).join(' • ');
+  const specMap = [
+    ['Yıl',a.yil],['Kasa Tipi',a.kasa_tipi],['Kilometre',a.km?fmtTL(a.km):''],
+    ['Vites',a.vites],['Yakıt',a.yakit],['Renk',a.renk]
+  ].filter(s=>s[1]);
+
+  app.innerHTML = `
+    <div class="back-link" onclick="goHome()">‹ Tüm araçlara dön</div>
+    <div class="grid">
+      <div>
+        <div class="gallery">
+          <div class="main-img" id="mainImg" onclick="if(photos.length)openLB(currentIdx)">
+            ${photos.length ? `<img id="mainImgEl" src="${photos[0]}" alt="">` : 'Fotoğraf yakında eklenecek'}
+          </div>
+          <div class="thumbs" id="thumbs">
+            ${photos.map((p,i)=>`<div class="thumb ${i===0?'active':''}" onclick="setMain(${i})"><img src="${p}"></div>`).join('')}
+          </div>
+        </div>
+        <div class="section" style="margin-top:20px">
+          <h2>Araç Özeti</h2>
+          <div class="specs">
+            ${specMap.map(s=>`<div class="spec"><div class="lbl">${s[0]}</div><div class="val">${s[1]}</div></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="summary">
+          <div class="crumb"><b>${a.marka||''}</b> › ${a.model||''}</div>
+          <h1>${a.marka||''} ${a.model||''}</h1>
+          <div class="versiyon">${a.versiyon||''}</div>
+          <div class="meta-line">${meta}</div>
+          ${a.plaka?`<div class="plate">${a.plaka}</div>`:''}
+          <div class="price">${fmtTL(a.fiyat)} <small>₺</small></div>
+          <span class="status">Yayında</span>
+          <a class="btn btn-brand btn-wide" href="tel:+902322537010" style="margin-top:8px">📞 Hemen Ara / Bilgi Al</a>
+          <a class="btn btn-ghost btn-wide" href="https://wa.me/905416870101?text=${encodeURIComponent(a.marka+' '+a.model+' ('+a.plaka+') hakkında bilgi almak istiyorum')}" target="_blank" style="margin-top:10px">💬 WhatsApp ile Sor</a>
+        </div>
+      </div>
+    </div>
+  `;
+  document.title = `${a.marka} ${a.model} ${a.yil} - İsmail Çalmaz Otomotiv`;
+}
+
+function setMain(i){
+  currentIdx=i;
+  const el=$('#mainImgEl'); if(el) el.src=photos[i];
+  document.querySelectorAll('.thumb').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+}
+
+/* ---- lightbox ---- */
+function openLB(i){currentIdx=i;$('#lbImg').src=photos[i];$('#lb').classList.add('open');}
+function closeLB(){$('#lb').classList.remove('open');}
+function navLB(d){currentIdx=(currentIdx+d+photos.length)%photos.length;$('#lbImg').src=photos[currentIdx];setMain(currentIdx);}
+document.addEventListener('keydown',e=>{
+  if(!$('#lb').classList.contains('open'))return;
+  if(e.key==='Escape')closeLB();if(e.key==='ArrowRight')navLB(1);if(e.key==='ArrowLeft')navLB(-1);
+});
+
+/* ============ YÖNLENDİRME ============ */
+function openArac(id){
+  history.pushState({}, '', '?id='+id);
+  route();
+}
+function goHome(){
+  history.pushState({}, '', location.pathname);
+  route();
+}
+window.addEventListener('popstate', route);
+
+function route(){
+  const id = new URLSearchParams(location.search).get('id');
+  if(id){
+    const a = ARACLAR.find(x => String(x.id) === decodeURIComponent(id));
+    if(a){ renderArac(a); window.scrollTo(0,0); return; }
+    app.innerHTML = `<div class="state">Araç bulunamadı veya satılmış olabilir.<br><br>
+      <a class="btn btn-brand" onclick="goHome()">Tüm araçlara dön</a></div>`;
+    return;
+  }
+  renderList();
+}
+
+/* ============ BAŞLAT ============ */
+(async function init(){
+  $('#yil').textContent = new Date().getFullYear();
+  try{
+    ARACLAR = await loadData();
+    route();
+  }catch(err){
+    app.innerHTML = `<div class="state">Araçlar yüklenirken bir sorun oluştu.<br>
+      Lütfen sayfayı yenileyin.<br><br><small>${err.message}</small></div>`;
+    console.error(err);
+  }
+})();
+</script>
+</body>
+</html>
