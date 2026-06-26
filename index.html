@@ -93,6 +93,20 @@
   .lb-close{position:absolute;top:18px;right:24px;color:#fff;font-size:34px;cursor:pointer}
   .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:44px;cursor:pointer;padding:0 18px;user-select:none}
   .lb-prev{left:0}.lb-next{right:0}
+  /* ekspertiz canlı önizleme */
+  .eksp-preview{position:relative;border:1px solid #e3e3e3;border-radius:10px;overflow:hidden;height:260px;background:#fafafa;cursor:pointer;transition:box-shadow .2s}
+  .eksp-preview:hover{box-shadow:0 6px 20px rgba(0,0,0,.12)}
+  .eksp-preview embed{width:100%;height:100%;border:0;pointer-events:none}
+  .eksp-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.72);color:#fff;font-size:12px;padding:5px 12px;border-radius:20px;white-space:nowrap}
+  /* ekspertiz pop-up */
+  .eksp-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+  .eksp-modal.open{display:flex}
+  .eksp-modal-inner{background:#fff;border-radius:12px;width:min(960px,96vw);height:min(90vh,900px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .eksp-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #eee;font-weight:600;font-size:16px}
+  .eksp-close{cursor:pointer;font-size:30px;line-height:1;color:#888;padding:0 4px}
+  .eksp-close:hover{color:#222}
+  .eksp-modal-inner iframe{flex:1;width:100%;border:0}
+  @media(max-width:600px){.eksp-preview{height:200px}}
 </style>
 </head>
 <body>
@@ -118,6 +132,16 @@
   <span class="lb-nav lb-prev" onclick="navLB(-1)">&#8249;</span>
   <img id="lbImg" src="">
   <span class="lb-nav lb-next" onclick="navLB(1)">&#8250;</span>
+</div>
+
+<div class="eksp-modal" id="ekspModal">
+  <div class="eksp-modal-inner">
+    <div class="eksp-modal-head">
+      <span>Ekspertiz Raporu</span>
+      <span class="eksp-close" onclick="closeEksp()">&times;</span>
+    </div>
+    <iframe id="ekspFrame" src="" title="Ekspertiz Raporu"></iframe>
+  </div>
 </div>
 
 <script>
@@ -151,6 +175,17 @@ async function loadData(){
     });
     return o;
   }).filter(o => o.id);   // boş satırları at
+}
+
+/* ---- stok sunucusu (fotoğraf + ekspertiz PDF kaynağı) ---- */
+const STOK_BASE = "https://ismailcalmazstok.com";
+
+/* ---- plakadan ekspertiz PDF adresi üret ---- */
+function ekspertizPdf(a){
+  if(!a.plaka) return '';
+  const p = String(a.plaka).replace(/\s+/g,'').toUpperCase();
+  if(!p) return '';
+  return `${STOK_BASE}/CmsFiles/Media/${p}.pdf`;
 }
 
 /* ---- foto linklerini diziye çevir ---- */
@@ -222,10 +257,11 @@ function filtrele(){
 }
 
 /* ============ TEK ARAÇ GÖRÜNÜMÜ ============ */
-let photos=[], currentIdx=0;
+let photos=[], currentIdx=0, currentEksp='';
 
 function renderArac(a){
   photos = fotoListesi(a);
+  currentEksp = ekspertizPdf(a);
   const meta = [a.yil,a.kasa_tipi,a.vites,a.yakit,(a.km?fmtTL(a.km)+' km':'')].filter(Boolean).join(' • ');
   const specMap = [
     ['Yıl',a.yil],['Kasa Tipi',a.kasa_tipi],['Kilometre',a.km?fmtTL(a.km):''],
@@ -250,6 +286,15 @@ function renderArac(a){
             ${specMap.map(s=>`<div class="spec"><div class="lbl">${s[0]}</div><div class="val">${s[1]}</div></div>`).join('')}
           </div>
         </div>
+        ${ekspertizPdf(a) ? `
+        <div class="section" style="margin-top:20px" id="ekspertizSection">
+          <h2>Ekspertiz Raporu</h2>
+          <div class="eksp-preview" onclick="openEksp()" title="Büyütmek için tıklayın">
+            <embed src="${ekspertizPdf(a)}#toolbar=0&navpanes=0" type="application/pdf">
+            <div class="eksp-hint">🔍 Tıkla, tam ekran aç</div>
+          </div>
+          <button class="btn btn-ghost btn-wide" onclick="openEksp()" style="margin-top:12px">📋 Ekspertiz Raporunu Görüntüle</button>
+        </div>` : ''}
       </div>
       <div>
         <div class="summary">
@@ -274,6 +319,20 @@ function setMain(i){
   const el=$('#mainImgEl'); if(el) el.src=photos[i];
   document.querySelectorAll('.thumb').forEach((t,idx)=>t.classList.toggle('active',idx===i));
 }
+
+/* ---- ekspertiz modal ---- */
+function openEksp(){
+  if(!currentEksp) return;
+  const f=$('#ekspFrame'); if(f) f.src=currentEksp+'#toolbar=1&navpanes=0';
+  $('#ekspModal').classList.add('open');
+}
+function closeEksp(){
+  $('#ekspModal').classList.remove('open');
+  const f=$('#ekspFrame'); if(f) f.src='';
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && $('#ekspModal') && $('#ekspModal').classList.contains('open')) closeEksp();
+});
 
 /* ---- lightbox ---- */
 function openLB(i){currentIdx=i;$('#lbImg').src=photos[i];$('#lb').classList.add('open');}
