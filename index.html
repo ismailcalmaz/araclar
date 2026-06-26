@@ -7,7 +7,7 @@
 <style>
   :root{
     --bg:#f5f6f8; --card:#fff; --ink:#1b1c1d; --muted:#6a737b;
-    --line:#e6e8ec; --brand:#d10429; --brand-dark:#a4011f; --ok:#178546;
+    --line:#e6e8ec; --brand:#661f18; --brand-dark:#4d1712; --ok:#178546;
     --radius:14px; --shadow:0 2px 14px rgba(20,28,40,.08);
     --font:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
   }
@@ -17,8 +17,9 @@
   .wrap{max-width:1140px;margin:0 auto;padding:0 16px}
   header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:10px;flex-wrap:wrap}
-  .logo{font-weight:800;font-size:20px;letter-spacing:.5px;cursor:pointer}
-  .logo span{color:var(--brand)}
+  .logo{cursor:pointer;display:flex;align-items:center}
+  .logo img{height:40px;width:auto;display:block;border-radius:4px}
+  @media(max-width:600px){.logo img{height:30px}}
   .top-actions{display:flex;gap:10px;flex-wrap:wrap}
   .btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
        padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;font-family:inherit}
@@ -119,7 +120,7 @@
 
 <header>
   <div class="wrap topbar">
-    <div class="logo" onclick="goHome()">İSMAİL ÇALMAZ <span>OTOMOTİV</span></div>
+    <div class="logo" onclick="goHome()"><img src="logo.png" alt="İsmail Çalmaz Otomotiv"></div>
     <div class="top-actions">
       <a class="btn btn-ghost" onclick="goHome()">Tüm Araçlar</a>
       <a class="btn btn-brand" href="tel:+902322537010">📞 0232 253 70 10</a>
