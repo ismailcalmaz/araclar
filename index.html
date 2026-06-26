@@ -96,6 +96,8 @@
   /* ekspertiz bloğu (whatsapp altında) */
   .eksp-block{margin-top:18px;padding-top:18px;border-top:1px solid #eee}
   .eksp-block h2{font-size:17px;margin:0 0 12px}
+  .btn-revize{background:#1f5161;color:#fff}
+  .btn-revize:hover{background:#266275}
   /* ekspertiz canlı önizleme */
   .eksp-preview{position:relative;border:1px solid #e3e3e3;border-radius:10px;overflow:hidden;height:260px;background:#fafafa;transition:box-shadow .2s}
   .eksp-preview:hover{box-shadow:0 6px 20px rgba(0,0,0,.12)}
@@ -161,6 +163,29 @@ let ARACLAR = [];
 
 const fmtTL = n => Number(String(n).replace(/[^\d]/g,'')||0).toLocaleString('tr-TR');
 
+/* ---- revize fiyat: bitiş zamanını çöz (gviz Date(...) veya TR metin) ---- */
+function parseBitis(v){
+  if(!v) return null;
+  if(v instanceof Date) return v;
+  if(typeof v === 'string'){
+    let m = v.match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
+    if(m) return new Date(+m[1],+m[2],+m[3],+(m[4]||23),+(m[5]||59),+(m[6]||59));
+    let t = v.trim().match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+    if(t) return new Date(+t[3],+t[2]-1,+t[1], t[4]!=null?+t[4]:23, t[5]!=null?+t[5]:59, 59);
+  }
+  const d = new Date(v); return isNaN(d) ? null : d;
+}
+/* ---- gösterilecek geçerli fiyatı belirle ---- */
+function gecerliFiyat(a){
+  const toNum = x => Number(String(x).replace(/[^\d]/g,'')||0);
+  const rf = toNum(a.revize_fiyat);
+  if(rf > 0){
+    const bitis = parseBitis(a.revize_bitis);
+    if(!bitis || new Date() <= bitis) return rf;
+  }
+  return toNum(a.fiyat);
+}
+
 /* ---- Sheets'ten veri çek (gviz JSON) ---- */
 async function loadData(){
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
@@ -183,6 +208,13 @@ async function loadData(){
 
 /* ---- stok sunucusu (fotoğraf + ekspertiz PDF kaynağı) ---- */
 const STOK_BASE = "https://ismailcalmazstok.com";
+
+/* ---- fiyat revizyon ekranı (Apps Script web uygulaması URL'si) ---- */
+const REVIZYON_URL = "https://script.google.com/a/macros/ismailcalmaz.com/s/AKfycbyLfSB90zJlkY1c1Vj62bvlgg_BD-inKsaHsXnXizDc1qkqfxAwovR6JQ9cVFr6YFKj/exec";
+/* Revizyon butonu SADECE link sonunda ?revize=1 varsa görünür.
+   Finansmana sade link (?id=...) gider, butonu görmez.
+   Personele ?id=...&revize=1 linki verilir, butonu görür. */
+const REVIZE_MODU = new URLSearchParams(location.search).get('revize') === '1';
 
 /* ---- plakadan ekspertiz PDF adresi üret ---- */
 function ekspertizPdf(a){
@@ -235,8 +267,8 @@ function filtrele(){
     return true;
   });
   const num = x => Number(String(x).replace(/[^\d]/g,'')||0);
-  if(s==='fiyat-asc') list.sort((a,b)=>num(a.fiyat)-num(b.fiyat));
-  if(s==='fiyat-desc')list.sort((a,b)=>num(b.fiyat)-num(a.fiyat));
+  if(s==='fiyat-asc') list.sort((a,b)=>gecerliFiyat(a)-gecerliFiyat(b));
+  if(s==='fiyat-desc')list.sort((a,b)=>gecerliFiyat(b)-gecerliFiyat(a));
   if(s==='yil-desc')  list.sort((a,b)=>num(b.yil)-num(a.yil));
   if(s==='km-asc')    list.sort((a,b)=>num(a.km)-num(b.km));
 
@@ -254,7 +286,7 @@ function filtrele(){
         <div class="card-title">${a.model||''}</div>
         <div class="card-ver">${a.versiyon||''}</div>
         <div class="card-meta">${meta}</div>
-        <div class="card-price">${fmtTL(a.fiyat)} ₺</div>
+        <div class="card-price">${fmtTL(gecerliFiyat(a))} ₺</div>
       </div>
     </div>`;
   }).join('') || `<div class="state">Aramanıza uygun araç bulunamadı.</div>`;
@@ -298,9 +330,9 @@ function renderArac(a){
           <div class="versiyon">${a.versiyon||''}</div>
           <div class="meta-line">${meta}</div>
           ${a.plaka?`<div class="plate">${a.plaka}</div>`:''}
-          <div class="price">${fmtTL(a.fiyat)} <small>₺</small></div>
+          <div class="price">${fmtTL(gecerliFiyat(a))} <small>₺</small></div>
           <span class="status">Yayında</span>
-          <a class="btn btn-brand btn-wide" href="tel:+902322537010" style="margin-top:8px">📞 Hemen Ara / Bilgi Al</a>
+          <a class="btn btn-brand btn-wide" href="${REVIZYON_URL}?plaka=${encodeURIComponent(a.plaka||'')}&arac=${encodeURIComponent((a.marka||'')+' '+(a.model||'')+' '+(a.yil||''))}" target="_blank" style="margin-top:8px">📞 Hemen Ara / Bilgi Al</a>
           <a class="btn btn-ghost btn-wide" href="https://wa.me/905416870101?text=${encodeURIComponent(a.marka+' '+a.model+' ('+a.plaka+') hakkında bilgi almak istiyorum')}" target="_blank" style="margin-top:10px">💬 WhatsApp ile Sor</a>
           ${ekspertizPdf(a) ? `
           <div class="eksp-block" id="ekspertizSection">
