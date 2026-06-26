@@ -93,9 +93,9 @@
   .lb-close{position:absolute;top:18px;right:24px;color:#fff;font-size:34px;cursor:pointer}
   .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:44px;cursor:pointer;padding:0 18px;user-select:none}
   .lb-prev{left:0}.lb-next{right:0}
-  /* araç özeti + ekspertiz yan yana */
-  .dual-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-  @media(max-width:760px){.dual-col{grid-template-columns:1fr}}
+  /* ekspertiz bloğu (whatsapp altında) */
+  .eksp-block{margin-top:18px;padding-top:18px;border-top:1px solid #eee}
+  .eksp-block h2{font-size:17px;margin:0 0 12px}
   /* ekspertiz canlı önizleme */
   .eksp-preview{position:relative;border:1px solid #e3e3e3;border-radius:10px;overflow:hidden;height:260px;background:#fafafa;transition:box-shadow .2s}
   .eksp-preview:hover{box-shadow:0 6px 20px rgba(0,0,0,.12)}
@@ -284,22 +284,11 @@ function renderArac(a){
             ${photos.map((p,i)=>`<div class="thumb ${i===0?'active':''}" onclick="setMain(${i})"><img src="${p}"></div>`).join('')}
           </div>
         </div>
-        <div class="dual-col" style="margin-top:20px">
-          <div class="section">
-            <h2>Araç Özeti</h2>
-            <div class="specs">
-              ${specMap.map(s=>`<div class="spec"><div class="lbl">${s[0]}</div><div class="val">${s[1]}</div></div>`).join('')}
-            </div>
+        <div class="section" style="margin-top:20px">
+          <h2>Araç Özeti</h2>
+          <div class="specs">
+            ${specMap.map(s=>`<div class="spec"><div class="lbl">${s[0]}</div><div class="val">${s[1]}</div></div>`).join('')}
           </div>
-          ${ekspertizPdf(a) ? `
-          <div class="section" id="ekspertizSection">
-            <h2>Ekspertiz Raporu</h2>
-            <div class="eksp-preview">
-              <embed src="${ekspertizPdf(a)}#toolbar=0&navpanes=0" type="application/pdf">
-              <div class="eksp-hint" onclick="openEksp()" title="Tam ekran aç">🔍 Büyüt</div>
-            </div>
-            <button class="btn btn-ghost btn-wide" onclick="openEksp()" style="margin-top:12px">📋 Ekspertiz Raporunu Görüntüle</button>
-          </div>` : ''}
         </div>
       </div>
       <div>
@@ -313,6 +302,15 @@ function renderArac(a){
           <span class="status">Yayında</span>
           <a class="btn btn-brand btn-wide" href="tel:+902322537010" style="margin-top:8px">📞 Hemen Ara / Bilgi Al</a>
           <a class="btn btn-ghost btn-wide" href="https://wa.me/905416870101?text=${encodeURIComponent(a.marka+' '+a.model+' ('+a.plaka+') hakkında bilgi almak istiyorum')}" target="_blank" style="margin-top:10px">💬 WhatsApp ile Sor</a>
+          ${ekspertizPdf(a) ? `
+          <div class="eksp-block" id="ekspertizSection">
+            <h2>Ekspertiz Raporu</h2>
+            <div class="eksp-preview">
+              <embed src="${ekspertizPdf(a)}#toolbar=0&navpanes=0" type="application/pdf">
+              <div class="eksp-hint" onclick="openEksp()" title="Tam ekran aç">🔍 Büyüt</div>
+            </div>
+            <button class="btn btn-ghost btn-wide" onclick="openEksp()" style="margin-top:12px">📋 Ekspertiz Raporunu Görüntüle</button>
+          </div>` : ''}
         </div>
       </div>
     </div>
